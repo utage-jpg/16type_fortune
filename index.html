@@ -1119,7 +1119,29 @@ function initApp(){
   document.getElementById('save-modal').addEventListener('click',e=>{if(e.target.id==='save-modal') document.getElementById('save-modal').classList.remove('active');});
 }
 
-document.addEventListener('DOMContentLoaded',initApp);
+document.addEventListener('DOMContentLoaded',()=>{
+  initApp();
+  // URLパラメータからタイプと誕生月を自動取得
+  const params=new URLSearchParams(location.search);
+  const pType=params.get('type');
+  const pMonth=parseInt(params.get('month'),10);
+  if(pType&&TYPES.some(t=>t.code===pType)&&pMonth>=1&&pMonth<=12){
+    selectedType=pType;
+    selectedMonth=pMonth;
+    // 選択画面を隠してローディングへ
+    document.getElementById('selector-panel').style.display='none';
+    document.getElementById('loading-screen').classList.add('active');
+    let li=0;const ltEl=document.getElementById('loading-text');
+    const timer=setInterval(()=>{li=(li+1)%LOADING_TEXTS.length;ltEl.textContent=LOADING_TEXTS[li];},600);
+    setTimeout(()=>{
+      clearInterval(timer);
+      currentFortune=generateFortune(selectedType,selectedMonth);
+      savedDataUrl=null;
+      showResult(currentFortune);
+      setupRankObserver(currentFortune);
+    },2400);
+  }
+});
 </script>
 </body>
 </html>
